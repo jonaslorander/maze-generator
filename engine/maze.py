@@ -152,16 +152,32 @@ class Maze():
 
                 # Remove walls
                 if not cell.rw:
-                    d.rectangle([(x + cell_size - line_width, y + line_width), (x + cell_size, y + cell_size - line_width * 2)], fill = 'white')
+                    x0 = x + cell_size - line_width
+                    y0 = y + line_width
+                    x1 = x + cell_size
+                    y1 = y + cell_size - line_width * 2
+                    d.rectangle([(x0, y0), (x1, y1)], fill = 'white')
                 
                 if not cell.lw:
-                    d.rectangle([(x, y + line_width), (x, y + cell_size - line_width * 2)], fill = 'white')
+                    x0 = x
+                    y0 = y + line_width
+                    x1 = x
+                    y1 = y + cell_size - line_width * 2
+                    d.rectangle([(x0, y0), (x1, y1)], fill = 'white')
 
                 if not cell.tw:
-                    d.rectangle([(x + line_width, y), (x + cell_size - line_width * 2, y)], fill = 'white')
+                    x0 = x + line_width
+                    y0 = y
+                    x1 = x + cell_size - line_width * 2
+                    y1 = y
+                    d.rectangle([(x0, y0), (x1, y1)], fill = 'white')
                 
                 if not cell.bw:
-                    d.rectangle([(x + line_width, y + cell_size), (x + cell_size - line_width * 2, y + cell_size - line_width)], fill = 'white')
+                    x0 = x + line_width
+                    y0 = y + cell_size
+                    x1 = x + cell_size - line_width * 2
+                    y1 = y + cell_size - line_width
+                    d.rectangle([(x0, y0), (x1, y1)], fill = 'white')
         
         # Print start end end tiles
         if not start == None and not end == None:
@@ -171,9 +187,17 @@ class Maze():
             end_y = end[1] - 1
 
             # Draw start rectangle
-            d.rectangle([(start_x * cell_size + line_width, start_y * cell_size + line_width), (start_x * cell_size + cell_size - line_width * 2, start_y * cell_size + cell_size - line_width * 2)], fill = 'red')
+            x0 = start_x * cell_size + line_width
+            y0 = start_y * cell_size + line_width
+            x1 = start_x * cell_size + cell_size - line_width * 2
+            y1 = start_y * cell_size + cell_size - line_width * 2
+            d.rectangle([(x0, y0), (x1, y1)], fill = 'red')
 
             # Draw end rectangle
-            d.rectangle([(end_x * cell_size + line_width, end_y * cell_size + line_width), (end_x * cell_size + cell_size - line_width * 2, end_y * cell_size + cell_size - line_width * 2)], fill = 'green')
+            x0 = end_x * cell_size + line_width
+            y0 = end_y * cell_size + line_width
+            x1 = end_x * cell_size + cell_size - line_width * 2
+            y1 = end_y * cell_size + cell_size - line_width * 2
+            d.rectangle([(x0, y0), (x1, y1)], fill = 'green')
 
         img.save(filename)
