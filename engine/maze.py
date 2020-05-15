@@ -1,16 +1,20 @@
 import random
+from PIL import Image, ImageDraw
 
 class Cell():
+    x = None
+    y = None
+
     def __init__(self, x, y):
         # Cell coordinates
         self.x = x
         self.y = y
 
         # Cell walls
-        self.ew = True
-        self.nw = True
-        self.ww = True
-        self.sw = True
+        self.rw = True
+        self.tw = True
+        self.lw = True
+        self.bw = True
 
         # Is cel visited?
         self.visited = False
@@ -19,23 +23,23 @@ class Cell():
         return f'{self.x};{self.y}:{1 if self.visited else 0}'
 
 class Maze():
-    def __init__(self, size = (10, 10), start = (0, 0)):
+    def __init__(self, size = (10, 10), start = (1, 1)):
         self.width = size[0]
         self.height = size[1]
 
         # Check that start cell is inside of maze
-        self.start_x = start[0]
-        self.start_y = start[1]
+        self.start_x = start[0] - 1
+        self.start_y = start[1] - 1
 
-        self.cells = [[Cell(x, y) for x in range(self.width)] for y in range(self.height)]
+        self.cells = [[Cell(x, y) for y in range(self.height)] for x in range(self.width)]
 
     # Get all unvisited neighbours of a cell
-    def __getNeighbours(self, cell):
+    def __get_neighbours(self, cell):
         n = []
 
         # Check left neighbour
         #  Make sure we are on the map
-        if cell.x - 1 > 0:
+        if cell.x - 1 >= 0:
             if not self.cells[cell.x - 1][cell.y].visited:
                 n.append(self.cells[cell.x - 1][cell.y])
 
@@ -47,7 +51,7 @@ class Maze():
 
         # Check upper neighbour
         #  Make sure we are on the map
-        if cell.y - 1 > 0:
+        if cell.y - 1 >= 0:
             if not self.cells[cell.x][cell.y - 1].visited:
                 n.append(self.cells[cell.x][cell.y - 1])
 
@@ -60,15 +64,46 @@ class Maze():
         return n
 
     # Check if two cells are neighbours 
-    def __isNeighbours(self, cc, nc):
-        pass
+    def __is_neighbours(self, cc, nc):
+        xdiff = abs(cc.x - nc.x)
+        ydiff = abs(cc.y - nc.y)
+
+        if (xdiff == 1 and ydiff == 0) or (xdiff == 0 and ydiff == 1) or (xdiff == 0 and ydiff == 0):
+            return True
+        else:
+            return False
 
     # Remove wall between current cell (cc) and next cell (nc)
-    def removeWall(self, cc, nc):
+    def remove_wall(self, cc, nc):
         # Check if cells are neighbours
-        if self.__isNeighbours(cc, nc):
+        if self.__is_neighbours(cc, nc):
             # Remove wall between cells
-            pass
+            xdiff = cc.x - nc.x
+            ydiff = cc.y - nc.y
+
+            # nc | cc
+            if xdiff == 1:
+                cc.lw = False
+                nc.rw = False
+            
+            # cc | nc
+            elif xdiff == -1:
+                cc.rw = False
+                nc.lw = False
+
+            # nc
+            # --
+            # cc
+            elif ydiff == 1:
+                cc.tw = False
+                nc.bw = False
+
+            # cc
+            # --
+            # nc
+            elif ydiff == -1:
+                cc.bw = False
+                nc.tw = False
 
     def generate(self):
         # Get the start cell and set it as visited
@@ -84,7 +119,7 @@ class Maze():
             curr_cell = cellstack.pop()
 
             # Get list of unvisited neighbours
-            nb = self.__getNeighbours(curr_cell)
+            nb = self.__get_neighbours(curr_cell)
 
             # If there are neighbours ad the cell back to the stack to handle other neightbours later
             if nb:
@@ -95,8 +130,50 @@ class Maze():
                 next_cell.visited = True
 
                 # Remove wall between cells
-                self.removeWall(curr_cell, next_cell)
+                self.remove_wall(curr_cell, next_cell)
 
                 # Add next cell to the stack to begin there next iteration
                 cellstack.append(next_cell)
 
+    def create_image(self, filename = 'maze.png', start = None, end = None):
+        img = Image.new('RGB', (self.width * 10, self.height * 10), 'black')
+        d = ImageDraw.Draw(img)
+
+        cell_size = 10
+        line_width = int(cell_size / 10)
+
+        for cellx in self.cells:
+            for cell in cellx:
+                x = cell.x * cell_size
+                y = cell.y * cell_size
+
+                # Draw cell with all walls
+                d.rectangle([(x, y), (x + cell_size - line_width, y + cell_size - line_width)], fill = 'white', outline = 'black', width = line_width)
+
+                # Remove walls
+                if not cell.rw:
+                    d.rectangle([(x + cell_size - line_width, y + line_width), (x + cell_size, y + cell_size - line_width * 2)], fill = 'white')
+                
+                if not cell.lw:
+                    d.rectangle([(x, y + line_width), (x, y + cell_size - line_width * 2)], fill = 'white')
+
+                if not cell.tw:
+                    d.rectangle([(x + line_width, y), (x + cell_size - line_width * 2, y)], fill = 'white')
+                
+                if not cell.bw:
+                    d.rectangle([(x + line_width, y + cell_size), (x + cell_size - line_width * 2, y + cell_size - line_width)], fill = 'white')
+        
+        # Print start end end tiles
+        if not start == None and not end == None:
+            start_x = start[0] - 1
+            start_y = start[1] - 1
+            end_x = end[0] - 1
+            end_y = end[1] - 1
+
+            # Draw start rectangle
+            d.rectangle([(start_x * cell_size + line_width, start_y * cell_size + line_width), (start_x * cell_size + cell_size - line_width * 2, start_y * cell_size + cell_size - line_width * 2)], fill = 'red')
+
+            # Draw end rectangle
+            d.rectangle([(end_x * cell_size + line_width, end_y * cell_size + line_width), (end_x * cell_size + cell_size - line_width * 2, end_y * cell_size + cell_size - line_width * 2)], fill = 'green')
+
+        img.save(filename)
