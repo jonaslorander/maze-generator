@@ -32,6 +32,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+Include/
+Scripts/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -71,6 +73,7 @@ target/
 
 # pyenv
 .python-version
+pyvenv.cfg
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.

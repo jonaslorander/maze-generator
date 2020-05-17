@@ -31,6 +31,10 @@ class Maze():
         self.start_x = start[0] - 1
         self.start_y = start[1] - 1
 
+        # Create a list of the order of the cisited cells, can be used for animating the drawing
+        self.cell_order = []
+
+        # Generate 3D list of all cells
         self.cells = [[Cell(x, y) for y in range(self.height)] for x in range(self.width)]
 
     # Get all unvisited neighbours of a cell
@@ -120,6 +124,9 @@ class Maze():
 
             # Get list of unvisited neighbours
             nb = self.__get_neighbours(curr_cell)
+
+            # Add the newly visited cell to the list
+            self.cell_order.append(curr_cell)
 
             # If there are neighbours ad the cell back to the stack to handle other neightbours later
             if nb:
