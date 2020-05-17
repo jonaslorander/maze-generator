@@ -2,9 +2,6 @@ import random
 from PIL import Image, ImageDraw
 
 class Cell():
-    x = None
-    y = None
-
     def __init__(self, x, y):
         # Cell coordinates
         self.x = x
@@ -115,7 +112,10 @@ class Maze():
         curr_cell.visited = True
 
         # Add it to the stack
-        cellstack = [curr_cell]
+        cellstack = [curr_cell]        
+
+        # Add first cell to the list
+        self.cell_order.append(curr_cell)
 
         # Loop through the stack until it is empty
         while cellstack:
@@ -124,9 +124,6 @@ class Maze():
 
             # Get list of unvisited neighbours
             nb = self.__get_neighbours(curr_cell)
-
-            # Add the newly visited cell to the list
-            self.cell_order.append(curr_cell)
 
             # If there are neighbours ad the cell back to the stack to handle other neightbours later
             if nb:
@@ -141,6 +138,9 @@ class Maze():
 
                 # Add next cell to the stack to begin there next iteration
                 cellstack.append(next_cell)
+
+                # Add the newly visited cell to the list
+                self.cell_order.append(next_cell)
 
     def create_image(self, filename = 'maze.png', start = None, end = None):
         img = Image.new('RGB', (self.width * 10, self.height * 10), 'black')
